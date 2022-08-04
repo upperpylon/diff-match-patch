@@ -1892,19 +1892,26 @@ void splice(NSMutableArray *input, NSUInteger start, NSUInteger count, NSArray *
     return;
   }
   NSString *pattern = [text substringWithRange:NSMakeRange(patch.start2, patch.length1)];
+  NSString *lastPattern = pattern;
   NSUInteger padding = 0;
+  uint16_t temp_Patch_Margin = Patch_Margin;
 
   // Look for the first and last matches of pattern in text.  If two
   // different matches are found, increase the pattern length.
   while ([text rangeOfString:pattern options:NSLiteralSearch].location
       != [text rangeOfString:pattern options:(NSLiteralSearch | NSBackwardsSearch)].location
-      && pattern.length < (Match_MaxBits - Patch_Margin - Patch_Margin)) {
-    padding += Patch_Margin;
+      && pattern.length < (Match_MaxBits - temp_Patch_Margin - temp_Patch_Margin)) {
+    padding += temp_Patch_Margin;
     pattern = [text diff_javaSubstringFromStart:MAX_OF_CONST_AND_DIFF(0, patch.start2, padding)
         toEnd:MIN(text.length, patch.start2 + patch.length1 + padding)];
+	if([pattern isEqualToString:lastPattern]) {
+		// this is an issue for Patch_Margin == 0
+		temp_Patch_Margin += 1;
+	}
+	lastPattern = pattern;
   }
   // Add one chunk for good luck.
-  padding += Patch_Margin;
+  padding += temp_Patch_Margin;
 
   // Add the prefix.
   NSString *prefix = [text diff_javaSubstringFromStart:MAX_OF_CONST_AND_DIFF(0, patch.start2, padding)
