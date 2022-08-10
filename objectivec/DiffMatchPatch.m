@@ -2222,8 +2222,8 @@ void splice(NSMutableArray *input, NSUInteger start, NSUInteger count, NSArray *
   // Strip the padding off.
   text = [textMutable substringWithRange:NSMakeRange(nullPadding.length,
       textMutable.length - 2 * nullPadding.length)];
-  [patches release];
-  return [NSArray arrayWithObjects:text, resultsArray, nil];
+  [patches autorelease];
+  return [NSArray arrayWithObjects:text, resultsArray, patches, nil];
 }
 
 /**
